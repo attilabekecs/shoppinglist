@@ -7,6 +7,8 @@ struct ShoppingListDetailView: View {
 
     var list: ShoppingList
 
+    @State private var showScanner = false
+
     var body: some View {
 
         List {
@@ -35,17 +37,46 @@ struct ShoppingListDetailView: View {
             }
         }
         .navigationTitle(list.title)
+
         .toolbar {
 
-            Button {
+            ToolbarItemGroup(placement: .topBarTrailing) {
 
-                let item = ShoppingItem(name: "Új termék")
+                // ➕ új termék
+                Button {
+
+                    let item = ShoppingItem(name: "Új termék")
+                    item.list = list
+
+                    context.insert(item)
+
+                } label: {
+                    Image(systemName: "plus")
+                }
+
+                // 📷 vonalkód scanner
+                Button {
+
+                    showScanner = true
+
+                } label: {
+                    Image(systemName: "barcode.viewfinder")
+                }
+            }
+        }
+
+        // 📷 Scanner megnyitása
+        .sheet(isPresented: $showScanner) {
+
+            BarcodeScannerView { code in
+
+                let item = ShoppingItem(
+                    name: "Termék \(code)"
+                )
+
                 item.list = list
 
                 context.insert(item)
-
-            } label: {
-                Image(systemName: "plus")
             }
         }
     }
