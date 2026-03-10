@@ -15,6 +15,11 @@ struct ContentView: View {
                 .tabItem {
                     Label("Receptek", systemImage: "fork.knife")
                 }
+
+            PantryView()
+                .tabItem {
+                    Label("Készlet", systemImage: "cabinet")
+                }
         }
     }
 }
