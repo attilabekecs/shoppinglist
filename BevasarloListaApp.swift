@@ -9,12 +9,13 @@ struct BevasarloListaApp: App {
             ContentView()
         }
         .modelContainer(for: [
-            ShoppingList.self,
-            ShoppingItem.self,
-            ProductPrice.self,
-            Recipe.self,
-            RecipeIngredient.self,
-            PantryItem.self
-        ])
+    ShoppingList.self,
+    ShoppingItem.self,
+    ProductPrice.self,
+    Recipe.self,
+    RecipeIngredient.self,
+    PantryItem.self,
+    QuickAddItem.self
+])
     }
 }
