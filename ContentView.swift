@@ -6,20 +6,26 @@ struct ContentView: View {
 
         TabView {
 
-            ShoppingListsView()
-                .tabItem {
-                    Label("Listák", systemImage: "cart")
-                }
+            NavigationStack {
+                ShoppingListsView()
+            }
+            .tabItem {
+                Label("Listák", systemImage: "cart.fill")
+            }
 
-            RecipesView()
-                .tabItem {
-                    Label("Receptek", systemImage: "fork.knife")
-                }
+            NavigationStack {
+                RecipesView()
+            }
+            .tabItem {
+                Label("Receptek", systemImage: "fork.knife")
+            }
 
-            PantryView()
-                .tabItem {
-                    Label("Készlet", systemImage: "cabinet")
-                }
+            NavigationStack {
+                PantryView()
+            }
+            .tabItem {
+                Label("Készlet", systemImage: "cabinet.fill")
+            }
         }
     }
 }
