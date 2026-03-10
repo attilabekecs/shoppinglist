@@ -173,11 +173,9 @@ struct ShoppingListDetailView: View {
 
             } else {
 
-                Image(systemName: "cart")
-                    .font(.system(size: 22))
+                Text(ProductIconService.icon(for: item.name))
+                    .font(.system(size: 28))
                     .frame(width: 52, height: 52)
-                    .background(.quaternary)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
             }
 
             // Checkbox
