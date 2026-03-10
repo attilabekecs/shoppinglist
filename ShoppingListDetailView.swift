@@ -7,6 +7,8 @@ struct ShoppingListDetailView: View {
     var list: ShoppingList
 
     @State private var showScanner = false
+    @State private var showEditor = false
+    @State private var editingItem: ShoppingItem?
 
     var body: some View {
 
@@ -32,6 +34,13 @@ struct ShoppingListDetailView: View {
 
                     Text(item.quantity)
                 }
+
+                // Termék szerkesztése tapra
+                .onTapGesture {
+
+                    editingItem = item
+                    showEditor = true
+                }
             }
         }
         .navigationTitle(list.title)
@@ -40,30 +49,36 @@ struct ShoppingListDetailView: View {
 
             ToolbarItemGroup(placement: .topBarTrailing) {
 
+                // ➕ Új termék
                 Button {
 
-                    let item = ShoppingItem(name: "Új termék")
-                    item.list = list
-                    context.insert(item)
+                    editingItem = nil
+                    showEditor = true
 
                 } label: {
                     Image(systemName: "plus")
                 }
 
+                // 📷 Scanner
                 Button {
                     showScanner = true
                 } label: {
                     Image(systemName: "barcode.viewfinder")
                 }
 
+                // 💰 Ár összehasonlítás
                 NavigationLink {
+
                     PriceComparisonView(list: list)
+
                 } label: {
+
                     Image(systemName: "chart.bar")
                 }
             }
         }
 
+        // 📷 Scanner
         .sheet(isPresented: $showScanner) {
 
             BarcodeScannerView { code in
@@ -82,6 +97,15 @@ struct ShoppingListDetailView: View {
                     context.insert(item)
                 }
             }
+        }
+
+        // ✏️ Termék szerkesztő
+        .sheet(isPresented: $showEditor) {
+
+            ItemEditorView(
+                list: list,
+                item: editingItem
+            )
         }
     }
 }
