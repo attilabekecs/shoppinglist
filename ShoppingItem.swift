@@ -113,6 +113,7 @@ struct ShoppingListDetailView: View {
 
                         let item = ShoppingItem(
                             name: name ?? "Ismeretlen termék"
+                            category: ProductClassifierService.category(for: name)
                         )
 
                         item.list = list
