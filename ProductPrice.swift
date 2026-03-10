@@ -4,7 +4,6 @@ import SwiftData
 @Model
 final class ProductPrice {
 
-    var id: UUID
     var productName: String
     var storeRaw: String
     var price: Double
@@ -19,7 +18,6 @@ final class ProductPrice {
         store: StoreType,
         price: Double
     ) {
-        self.id = UUID()
         self.productName = productName
         self.storeRaw = store.rawValue
         self.price = price
