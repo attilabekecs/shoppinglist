@@ -14,39 +14,40 @@ struct ShoppingListDetailView: View {
 
         VStack {
 
-    QuickAddView(list: list)
+            QuickAddView(list: list)
 
-    List {
+            List {
 
-            ForEach(list.items) { item in
+                ForEach(list.items) { item in
 
-                HStack {
+                    HStack {
 
-                    Button {
-                        item.isChecked.toggle()
-                    } label: {
-                        Image(systemName:
-                            item.isChecked
-                            ? "checkmark.circle.fill"
-                            : "circle"
-                        )
+                        Button {
+                            item.isChecked.toggle()
+                        } label: {
+                            Image(systemName:
+                                item.isChecked
+                                ? "checkmark.circle.fill"
+                                : "circle"
+                            )
+                        }
+
+                        Text(item.name)
+
+                        Spacer()
+
+                        Text(item.quantity)
                     }
 
-                    Text(item.name)
-
-                    Spacer()
-
-                    Text(item.quantity)
-                }
-
-                // Termék szerkesztése tapra
-                .onTapGesture {
-
-                    editingItem = item
-                    showEditor = true
+                    // Termék szerkesztése
+                    .onTapGesture {
+                        editingItem = item
+                        showEditor = true
+                    }
                 }
             }
-        }
+        } // ← FONTOS: VStack lezárása
+
         .navigationTitle(list.title)
 
         .toolbar {
@@ -63,7 +64,7 @@ struct ShoppingListDetailView: View {
                     Image(systemName: "plus")
                 }
 
-                // 📷 Scanner
+                // 📷 Vonalkód scanner
                 Button {
                     showScanner = true
                 } label: {
@@ -76,7 +77,6 @@ struct ShoppingListDetailView: View {
                     PriceComparisonView(list: list)
 
                 } label: {
-
                     Image(systemName: "chart.bar")
                 }
             }
