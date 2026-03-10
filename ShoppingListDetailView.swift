@@ -4,7 +4,6 @@ import SwiftData
 struct ShoppingListDetailView: View {
 
     @Environment(\.modelContext) private var context
-
     var list: ShoppingList
 
     @State private var showScanner = false
@@ -20,11 +19,10 @@ struct ShoppingListDetailView: View {
                     Button {
                         item.isChecked.toggle()
                     } label: {
-
                         Image(systemName:
-                            item.isChecked
-                            ? "checkmark.circle.fill"
-                            : "circle"
+                                item.isChecked
+                                ? "checkmark.circle.fill"
+                                : "circle"
                         )
                     }
 
@@ -42,41 +40,42 @@ struct ShoppingListDetailView: View {
 
             ToolbarItemGroup(placement: .topBarTrailing) {
 
-                // ➕ új termék
+                // ➕ Új termék
                 Button {
 
                     let item = ShoppingItem(name: "Új termék")
                     item.list = list
-
                     context.insert(item)
 
                 } label: {
                     Image(systemName: "plus")
                 }
 
-                // 📷 vonalkód scanner
+                // 📷 Vonalkód scanner
                 Button {
-
                     showScanner = true
-
                 } label: {
                     Image(systemName: "barcode.viewfinder")
                 }
             }
         }
 
-        // 📷 Scanner megnyitása
+        // 📷 Scanner sheet
         .sheet(isPresented: $showScanner) {
 
             BarcodeScannerView { code in
 
-                let item = ShoppingItem(
-                    name: "Termék \(code)"
-                )
+                Task {
 
-                item.list = list
+                    let name = await ProductLookupService.fetchProduct(barcode: code)
 
-                context.insert(item)
+                    let item = ShoppingItem(
+                        name: name ?? "Ismeretlen termék"
+                    )
+
+                    item.list = list
+                    context.insert(item)
+                }
             }
         }
     }
