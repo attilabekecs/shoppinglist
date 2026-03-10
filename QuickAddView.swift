@@ -12,7 +12,7 @@ struct QuickAddView: View {
 
         ScrollView(.horizontal, showsIndicators: false) {
 
-            HStack {
+            HStack(spacing: 10) {
 
                 ForEach(quickItems) { item in
 
@@ -22,15 +22,24 @@ struct QuickAddView: View {
 
                     } label: {
 
-                        Text("+ \(item.name)")
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 8)
-                            .background(.blue.opacity(0.15))
-                            .clipShape(Capsule())
+                        HStack(spacing: 6) {
+
+                            Image(systemName: "plus")
+
+                            Text(item.name)
+                        }
+                        .font(.subheadline)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(
+                            Capsule()
+                                .fill(.ultraThinMaterial)
+                        )
                     }
                 }
             }
             .padding(.horizontal)
+            .padding(.vertical, 6)
         }
     }
 
