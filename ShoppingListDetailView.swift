@@ -35,7 +35,7 @@ struct ShoppingListDetailView: View {
 
                     LazyVStack(spacing: 20) {
 
-                        ForEach(StoreLayoutService.groupedItems(for: list), id: \.category) { group in
+                        ForEach(StoreLayoutService.groupedItems(for: list)) { group in
 
                             let filtered = filteredItems(group.items)
 
