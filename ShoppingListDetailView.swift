@@ -24,76 +24,32 @@ struct ShoppingListDetailView: View {
 
             QuickAddView(list: list)
 
-            List {
+            ScrollView {
 
-                ForEach(StoreLayoutService.groupedItems(for: list), id: \.category) { group in
+                LazyVStack(spacing: 20) {
 
-                    let filtered = filteredItems(group.items)
+                    ForEach(StoreLayoutService.groupedItems(for: list), id: \.category) { group in
 
-                    if !filtered.isEmpty {
+                        let filtered = filteredItems(group.items)
 
-                        Section(group.category.rawValue) {
+                        if !filtered.isEmpty {
 
-                            ForEach(filtered) { item in
+                            VStack(alignment: .leading, spacing: 12) {
 
-                                HStack(spacing: 12) {
+                                // kategória cím
+                                Text(group.category.rawValue)
+                                    .font(.headline)
+                                    .padding(.horizontal)
 
-                                    // 📷 Termék kép
-                                    if let data = item.imageData,
-                                       let uiImage = UIImage(data: data) {
+                                ForEach(filtered) { item in
 
-                                        Image(uiImage: uiImage)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 40, height: 40)
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
-
-                                    } else {
-
-                                        Image(systemName: "cart")
-                                            .frame(width: 40)
-                                    }
-
-                                    // ✔️ Checkbox
-                                    Button {
-                                        item.isChecked.toggle()
-                                    } label: {
-                                        Image(systemName:
-                                            item.isChecked
-                                            ? "checkmark.circle.fill"
-                                            : "circle"
-                                        )
-                                    }
-                                    .buttonStyle(.plain)
-
-                                    // 📝 Termék adatok
-                                    VStack(alignment: .leading, spacing: 4) {
-
-                                        Text(item.name)
-                                            .strikethrough(item.isChecked)
-                                            .foregroundStyle(
-                                                item.isChecked ? .secondary : .primary
-                                            )
-
-                                        if !item.quantity.isEmpty {
-                                            Text(item.quantity)
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        }
-                                    }
-
-                                    Spacer()
-                                }
-                                .contentShape(Rectangle())
-
-                                .onTapGesture {
-                                    editingItem = item
-                                    activeSheet = .editor
+                                    itemCard(item)
                                 }
                             }
                         }
                     }
                 }
+                .padding(.vertical)
             }
             .searchable(text: $searchText, prompt: "Termék keresése")
         }
@@ -104,7 +60,6 @@ struct ShoppingListDetailView: View {
 
             ToolbarItemGroup(placement: .topBarTrailing) {
 
-                // ➕ Új termék
                 Button {
                     editingItem = nil
                     activeSheet = .editor
@@ -112,21 +67,18 @@ struct ShoppingListDetailView: View {
                     Image(systemName: "plus")
                 }
 
-                // 📷 Vonalkód scanner
                 Button {
                     activeSheet = .scanner
                 } label: {
                     Image(systemName: "barcode.viewfinder")
                 }
 
-                // ⚡ QuickAdd szerkesztő
                 Button {
                     activeSheet = .quickEditor
                 } label: {
                     Image(systemName: "slider.horizontal.3")
                 }
 
-                // 💰 Ár összehasonlítás
                 NavigationLink {
                     PriceComparisonView(list: list)
                 } label: {
@@ -172,7 +124,74 @@ struct ShoppingListDetailView: View {
         }
     }
 
-    // 🔎 Keresési szűrő
+    // MARK: - Card UI
+
+    private func itemCard(_ item: ShoppingItem) -> some View {
+
+        HStack(spacing: 16) {
+
+            if let data = item.imageData,
+               let uiImage = UIImage(data: data) {
+
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 52, height: 52)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+
+            } else {
+
+                Image(systemName: "cart")
+                    .font(.system(size: 22))
+                    .frame(width: 52, height: 52)
+                    .background(.quaternary)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+            }
+
+            Button {
+                item.isChecked.toggle()
+            } label: {
+                Image(systemName:
+                    item.isChecked
+                    ? "checkmark.circle.fill"
+                    : "circle"
+                )
+                .font(.title2)
+            }
+            .buttonStyle(.plain)
+
+            VStack(alignment: .leading, spacing: 4) {
+
+                Text(item.name)
+                    .font(.headline)
+                    .strikethrough(item.isChecked)
+                    .foregroundStyle(item.isChecked ? .secondary : .primary)
+
+                if !item.quantity.isEmpty {
+
+                    Text(item.quantity)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Spacer()
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(.ultraThinMaterial)
+        )
+        .padding(.horizontal)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            editingItem = item
+            activeSheet = .editor
+        }
+    }
+
+    // MARK: - Keresési szűrő
+
     private func filteredItems(_ items: [ShoppingItem]) -> [ShoppingItem] {
 
         if searchText.isEmpty {
