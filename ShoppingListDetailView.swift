@@ -31,8 +31,25 @@ struct ShoppingListDetailView: View {
 
                         ForEach(group.items) { item in
 
-                            HStack {
+                            HStack(spacing: 12) {
 
+                                // 📷 Termék kép
+                                if let data = item.imageData,
+                                   let uiImage = UIImage(data: data) {
+
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 40, height: 40)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                                } else {
+
+                                    Image(systemName: "cart")
+                                        .frame(width: 40)
+                                }
+
+                                // ✔️ Checkbox
                                 Button {
                                     item.isChecked.toggle()
                                 } label: {
@@ -44,8 +61,14 @@ struct ShoppingListDetailView: View {
                                 }
                                 .buttonStyle(.plain)
 
+                                // 📝 Termék adatok
                                 VStack(alignment: .leading, spacing: 4) {
+
                                     Text(item.name)
+                                        .strikethrough(item.isChecked)
+                                        .foregroundStyle(
+                                            item.isChecked ? .secondary : .primary
+                                        )
 
                                     if !item.quantity.isEmpty {
                                         Text(item.quantity)
@@ -57,6 +80,8 @@ struct ShoppingListDetailView: View {
                                 Spacer()
                             }
                             .contentShape(Rectangle())
+
+                            // ✏️ Szerkesztés
                             .onTapGesture {
                                 editingItem = item
                                 activeSheet = .editor
@@ -66,12 +91,14 @@ struct ShoppingListDetailView: View {
                 }
             }
         }
+
         .navigationTitle(list.title)
 
         .toolbar {
 
             ToolbarItemGroup(placement: .topBarTrailing) {
 
+                // ➕ Új termék
                 Button {
                     editingItem = nil
                     activeSheet = .editor
@@ -79,18 +106,21 @@ struct ShoppingListDetailView: View {
                     Image(systemName: "plus")
                 }
 
+                // 📷 Vonalkód scanner
                 Button {
                     activeSheet = .scanner
                 } label: {
                     Image(systemName: "barcode.viewfinder")
                 }
 
+                // ⚡ QuickAdd szerkesztő
                 Button {
                     activeSheet = .quickEditor
                 } label: {
                     Image(systemName: "slider.horizontal.3")
                 }
 
+                // 💰 Ár összehasonlítás
                 NavigationLink {
                     PriceComparisonView(list: list)
                 } label: {
@@ -106,9 +136,11 @@ struct ShoppingListDetailView: View {
             case .scanner:
 
                 BarcodeScannerView { code in
+
                     activeSheet = nil
 
                     Task {
+
                         let name = await ProductLookupService.fetchProduct(barcode: code)
 
                         let item = ShoppingItem(
@@ -116,6 +148,7 @@ struct ShoppingListDetailView: View {
                         )
 
                         item.list = list
+
                         context.insert(item)
                     }
                 }
