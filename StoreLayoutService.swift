@@ -94,13 +94,20 @@ struct StoreLayoutService {
         }
     }
 
-    static func groupedItems(for list: ShoppingList) -> [(category: ProductCategory, items: [ShoppingItem])] {
-        let orderedCategories = orderedCategories(for: list.store)
+    static func groupedItems(for list: ShoppingList) -> [CategoryGroup] {
 
-        return orderedCategories.compactMap { category in
-            let items = list.items.filter { $0.category == category }
-            guard !items.isEmpty else { return nil }
-            return (category: category, items: items)
-        }
+    let orderedCategories = orderedCategories(for: list.store)
+
+    return orderedCategories.compactMap { category in
+
+        let items = list.items.filter { $0.category == category }
+
+        guard !items.isEmpty else { return nil }
+
+        return CategoryGroup(
+            category: category,
+            items: items
+        )
     }
+}
 }
