@@ -34,7 +34,9 @@ struct ShoppingListDetailView: View {
                             HStack {
 
                                 Button {
-                                    item.isChecked.toggle()
+                                    withAnimation(.spring(response: 0.25)) {
+                                        item.isChecked.toggle()
+                                    }
                                 } label: {
                                     Image(systemName:
                                         item.isChecked
@@ -45,6 +47,7 @@ struct ShoppingListDetailView: View {
                                 .buttonStyle(.plain)
 
                                 VStack(alignment: .leading, spacing: 4) {
+
                                     Text(item.name)
 
                                     if !item.quantity.isEmpty {
@@ -109,11 +112,14 @@ struct ShoppingListDetailView: View {
                     activeSheet = nil
 
                     Task {
+
                         let name = await ProductLookupService.fetchProduct(barcode: code)
 
+                        let productName = name ?? "Ismeretlen termék"
+
                         let item = ShoppingItem(
-                            name: name ?? "Ismeretlen termék"
-                            category: ProductClassifierService.category(for: name)
+                            name: productName,
+                            category: ProductClassifierService.category(for: productName)
                         )
 
                         item.list = list
