@@ -30,7 +30,7 @@ struct ItemEditorView: View {
 
                     Picker("Kategória", selection: $category) {
 
-                        ForEach(ProductCategory.allCases) { cat in
+                        ForEach(ProductCategory.allCases, id: \.self) { cat in
                             Text(cat.rawValue)
                                 .tag(cat)
                         }
@@ -52,14 +52,13 @@ struct ItemEditorView: View {
                 ToolbarItem(placement: .topBarTrailing) {
 
                     Button("Mentés") {
-
                         save()
-
                     }
-                    .disabled(name.isEmpty)
+                    .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
         }
+
         .onAppear {
 
             if let item {
