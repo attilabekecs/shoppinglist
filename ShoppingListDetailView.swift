@@ -19,81 +19,80 @@ struct ShoppingListDetailView: View {
 
     var body: some View {
 
-        VStack {
+        VStack(spacing: 0) {
 
             QuickAddView(list: list)
 
             List {
 
-                ForEach(list.items) { item in
+                ForEach(StoreLayoutService.groupedItems(for: list), id: \.category) { group in
 
-                    HStack {
+                    Section(group.category.rawValue) {
 
-                        Button {
-                            item.isChecked.toggle()
-                        } label: {
-                            Image(systemName:
-                                item.isChecked
-                                ? "checkmark.circle.fill"
-                                : "circle"
-                            )
+                        ForEach(group.items) { item in
+
+                            HStack {
+
+                                Button {
+                                    item.isChecked.toggle()
+                                } label: {
+                                    Image(systemName:
+                                        item.isChecked
+                                        ? "checkmark.circle.fill"
+                                        : "circle"
+                                    )
+                                }
+                                .buttonStyle(.plain)
+
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(item.name)
+
+                                    if !item.quantity.isEmpty {
+                                        Text(item.quantity)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+
+                                Spacer()
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                editingItem = item
+                                activeSheet = .editor
+                            }
                         }
-
-                        Text(item.name)
-
-                        Spacer()
-
-                        Text(item.quantity)
-                    }
-
-                    .onTapGesture {
-
-                        editingItem = item
-                        activeSheet = .editor
                     }
                 }
             }
         }
-
         .navigationTitle(list.title)
 
         .toolbar {
 
             ToolbarItemGroup(placement: .topBarTrailing) {
 
-                // ➕ Új termék
                 Button {
-
                     editingItem = nil
                     activeSheet = .editor
-
                 } label: {
                     Image(systemName: "plus")
                 }
 
-                // 📷 Vonalkód scanner
                 Button {
-
                     activeSheet = .scanner
-
                 } label: {
                     Image(systemName: "barcode.viewfinder")
                 }
 
-                // ⚡ QuickAdd szerkesztő
                 Button {
-
                     activeSheet = .quickEditor
-
                 } label: {
                     Image(systemName: "slider.horizontal.3")
                 }
 
-                // 💰 Ár összehasonlítás
                 NavigationLink {
-
                     PriceComparisonView(list: list)
-
                 } label: {
                     Image(systemName: "chart.bar")
                 }
@@ -107,11 +106,9 @@ struct ShoppingListDetailView: View {
             case .scanner:
 
                 BarcodeScannerView { code in
-
                     activeSheet = nil
 
                     Task {
-
                         let name = await ProductLookupService.fetchProduct(barcode: code)
 
                         let item = ShoppingItem(
