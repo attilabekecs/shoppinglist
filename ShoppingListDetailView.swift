@@ -20,52 +20,82 @@ struct ShoppingListDetailView: View {
 
     var body: some View {
 
-        VStack(spacing: 0) {
+        ZStack {
 
-            QuickAddView(list: list)
+            VStack(spacing: 0) {
 
-            ScrollView {
+                GlassHeaderView(
+                    title: list.title,
+                    searchText: $searchText
+                )
 
-                LazyVStack(spacing: 20) {
+                QuickAddView(list: list)
 
-                    ForEach(StoreLayoutService.groupedItems(for: list), id: \.category) { group in
+                ScrollView {
 
-                        let filtered = filteredItems(group.items)
+                    LazyVStack(spacing: 20) {
 
-                        if !filtered.isEmpty {
+                        ForEach(StoreLayoutService.groupedItems(for: list), id: \.category) { group in
 
-                            VStack(alignment: .leading, spacing: 12) {
+                            let filtered = filteredItems(group.items)
 
-                                // kategória cím
-                                Text(group.category.rawValue)
-                                    .font(.headline)
-                                    .padding(.horizontal)
+                            if !filtered.isEmpty {
 
-                                ForEach(filtered) { item in
+                                VStack(alignment: .leading, spacing: 12) {
 
-                                    itemCard(item)
+                                    // MARK: Category Header
+
+                                    Text(group.category.rawValue.uppercased())
+                                        .font(.caption)
+                                        .fontWeight(.semibold)
+                                        .foregroundStyle(.secondary)
+                                        .padding(.horizontal)
+
+                                    ForEach(filtered) { item in
+
+                                        itemCard(item)
+                                    }
                                 }
                             }
                         }
                     }
+                    .padding(.vertical)
                 }
-                .padding(.vertical)
             }
-            .searchable(text: $searchText, prompt: "Termék keresése")
-        }
 
-        .navigationTitle(list.title)
+            // MARK: Floating Add Button
+
+            VStack {
+
+                Spacer()
+
+                HStack {
+
+                    Spacer()
+
+                    Button {
+
+                        editingItem = nil
+                        activeSheet = .editor
+
+                    } label: {
+
+                        Image(systemName: "plus")
+                            .font(.system(size: 26, weight: .bold))
+                            .foregroundColor(.white)
+                            .frame(width: 60, height: 60)
+                            .background(.blue)
+                            .clipShape(Circle())
+                            .shadow(radius: 8)
+                    }
+                    .padding()
+                }
+            }
+        }
 
         .toolbar {
 
             ToolbarItemGroup(placement: .topBarTrailing) {
-
-                Button {
-                    editingItem = nil
-                    activeSheet = .editor
-                } label: {
-                    Image(systemName: "plus")
-                }
 
                 Button {
                     activeSheet = .scanner
@@ -124,11 +154,13 @@ struct ShoppingListDetailView: View {
         }
     }
 
-    // MARK: - Card UI
+    // MARK: Item Card
 
     private func itemCard(_ item: ShoppingItem) -> some View {
 
         HStack(spacing: 16) {
+
+            // Product image
 
             if let data = item.imageData,
                let uiImage = UIImage(data: data) {
@@ -148,9 +180,16 @@ struct ShoppingListDetailView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14))
             }
 
+            // Checkbox
+
             Button {
-                item.isChecked.toggle()
+
+                withAnimation(.spring(response: 0.25)) {
+                    item.isChecked.toggle()
+                }
+
             } label: {
+
                 Image(systemName:
                     item.isChecked
                     ? "checkmark.circle.fill"
@@ -159,6 +198,8 @@ struct ShoppingListDetailView: View {
                 .font(.title2)
             }
             .buttonStyle(.plain)
+
+            // Item Text
 
             VStack(alignment: .leading, spacing: 4) {
 
@@ -190,7 +231,7 @@ struct ShoppingListDetailView: View {
         }
     }
 
-    // MARK: - Keresési szűrő
+    // MARK: Search Filter
 
     private func filteredItems(_ items: [ShoppingItem]) -> [ShoppingItem] {
 
