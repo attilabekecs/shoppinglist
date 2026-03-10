@@ -20,9 +20,9 @@ struct ShoppingListDetailView: View {
                         item.isChecked.toggle()
                     } label: {
                         Image(systemName:
-                                item.isChecked
-                                ? "checkmark.circle.fill"
-                                : "circle"
+                            item.isChecked
+                            ? "checkmark.circle.fill"
+                            : "circle"
                         )
                     }
 
@@ -40,7 +40,6 @@ struct ShoppingListDetailView: View {
 
             ToolbarItemGroup(placement: .topBarTrailing) {
 
-                // ➕ Új termék
                 Button {
 
                     let item = ShoppingItem(name: "Új termék")
@@ -51,19 +50,25 @@ struct ShoppingListDetailView: View {
                     Image(systemName: "plus")
                 }
 
-                // 📷 Vonalkód scanner
                 Button {
                     showScanner = true
                 } label: {
                     Image(systemName: "barcode.viewfinder")
                 }
+
+                NavigationLink {
+                    PriceComparisonView(list: list)
+                } label: {
+                    Image(systemName: "chart.bar")
+                }
             }
         }
 
-        // 📷 Scanner sheet
         .sheet(isPresented: $showScanner) {
 
             BarcodeScannerView { code in
+
+                showScanner = false
 
                 Task {
 
