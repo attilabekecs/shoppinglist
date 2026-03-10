@@ -13,19 +13,32 @@ struct RecipesView: View {
             List {
 
                 ForEach(recipes) { recipe in
-                    Text(recipe.name)
+
+                    NavigationLink {
+
+                        RecipeDetailView(recipe: recipe)
+
+                    } label: {
+
+                        Text(recipe.name)
+                    }
                 }
             }
             .navigationTitle("Receptek")
+
             .toolbar {
 
-                Button {
+                ToolbarItem(placement: .topBarTrailing) {
 
-                    let recipe = Recipe(name: "Új recept")
-                    context.insert(recipe)
+                    Button {
 
-                } label: {
-                    Image(systemName: "plus")
+                        let recipe = Recipe(name: "Új recept")
+                        context.insert(recipe)
+
+                    } label: {
+
+                        Image(systemName: "plus")
+                    }
                 }
             }
         }
