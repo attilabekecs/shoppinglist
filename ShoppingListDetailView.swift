@@ -12,7 +12,11 @@ struct ShoppingListDetailView: View {
 
     var body: some View {
 
-        List {
+        VStack {
+
+    QuickAddView(list: list)
+
+    List {
 
             ForEach(list.items) { item in
 
