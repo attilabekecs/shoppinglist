@@ -16,22 +16,23 @@ struct ShoppingItemCard: View {
 
             HStack(spacing: 16) {
 
+                // kép
                 if let data = item.imageData,
                    let image = UIImage(data: data) {
 
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 52, height: 52)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .frame(width: 56, height: 56)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
 
                 } else {
 
                     Image(systemName: "cart")
                         .font(.system(size: 24))
-                        .frame(width: 52, height: 52)
+                        .frame(width: 56, height: 56)
                         .background(.quaternary)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -61,13 +62,13 @@ struct ShoppingItemCard: View {
                         ? "checkmark.circle.fill"
                         : "circle"
                     )
-                    .font(.title3)
+                    .font(.title2)
                 }
                 .buttonStyle(.plain)
             }
             .padding()
             .background(
-                RoundedRectangle(cornerRadius: 18)
+                RoundedRectangle(cornerRadius: 20)
                     .fill(.ultraThinMaterial)
             )
         }
