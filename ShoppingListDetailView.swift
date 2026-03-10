@@ -16,6 +16,7 @@ struct ShoppingListDetailView: View {
 
     @State private var editingItem: ShoppingItem?
     @State private var activeSheet: ActiveSheet?
+    @State private var searchText: String = ""
 
     var body: some View {
 
@@ -27,69 +28,74 @@ struct ShoppingListDetailView: View {
 
                 ForEach(StoreLayoutService.groupedItems(for: list), id: \.category) { group in
 
-                    Section(group.category.rawValue) {
+                    let filtered = filteredItems(group.items)
 
-                        ForEach(group.items) { item in
+                    if !filtered.isEmpty {
 
-                            HStack(spacing: 12) {
+                        Section(group.category.rawValue) {
 
-                                // 📷 Termék kép
-                                if let data = item.imageData,
-                                   let uiImage = UIImage(data: data) {
+                            ForEach(filtered) { item in
 
-                                    Image(uiImage: uiImage)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 40, height: 40)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                HStack(spacing: 12) {
 
-                                } else {
+                                    // 📷 Termék kép
+                                    if let data = item.imageData,
+                                       let uiImage = UIImage(data: data) {
 
-                                    Image(systemName: "cart")
-                                        .frame(width: 40)
-                                }
+                                        Image(uiImage: uiImage)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 40, height: 40)
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
 
-                                // ✔️ Checkbox
-                                Button {
-                                    item.isChecked.toggle()
-                                } label: {
-                                    Image(systemName:
-                                        item.isChecked
-                                        ? "checkmark.circle.fill"
-                                        : "circle"
-                                    )
-                                }
-                                .buttonStyle(.plain)
+                                    } else {
 
-                                // 📝 Termék adatok
-                                VStack(alignment: .leading, spacing: 4) {
-
-                                    Text(item.name)
-                                        .strikethrough(item.isChecked)
-                                        .foregroundStyle(
-                                            item.isChecked ? .secondary : .primary
-                                        )
-
-                                    if !item.quantity.isEmpty {
-                                        Text(item.quantity)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
+                                        Image(systemName: "cart")
+                                            .frame(width: 40)
                                     }
+
+                                    // ✔️ Checkbox
+                                    Button {
+                                        item.isChecked.toggle()
+                                    } label: {
+                                        Image(systemName:
+                                            item.isChecked
+                                            ? "checkmark.circle.fill"
+                                            : "circle"
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+
+                                    // 📝 Termék adatok
+                                    VStack(alignment: .leading, spacing: 4) {
+
+                                        Text(item.name)
+                                            .strikethrough(item.isChecked)
+                                            .foregroundStyle(
+                                                item.isChecked ? .secondary : .primary
+                                            )
+
+                                        if !item.quantity.isEmpty {
+                                            Text(item.quantity)
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+
+                                    Spacer()
                                 }
+                                .contentShape(Rectangle())
 
-                                Spacer()
-                            }
-                            .contentShape(Rectangle())
-
-                            // ✏️ Szerkesztés
-                            .onTapGesture {
-                                editingItem = item
-                                activeSheet = .editor
+                                .onTapGesture {
+                                    editingItem = item
+                                    activeSheet = .editor
+                                }
                             }
                         }
                     }
                 }
             }
+            .searchable(text: $searchText, prompt: "Termék keresése")
         }
 
         .navigationTitle(list.title)
@@ -148,7 +154,6 @@ struct ShoppingListDetailView: View {
                         )
 
                         item.list = list
-
                         context.insert(item)
                     }
                 }
@@ -164,6 +169,18 @@ struct ShoppingListDetailView: View {
 
                 QuickAddEditorView()
             }
+        }
+    }
+
+    // 🔎 Keresési szűrő
+    private func filteredItems(_ items: [ShoppingItem]) -> [ShoppingItem] {
+
+        if searchText.isEmpty {
+            return items
+        }
+
+        return items.filter {
+            $0.name.localizedCaseInsensitiveContains(searchText)
         }
     }
 }
