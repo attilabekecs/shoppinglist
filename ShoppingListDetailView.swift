@@ -1,14 +1,21 @@
 import SwiftUI
 import SwiftData
 
+enum ActiveSheet: Identifiable {
+    case scanner
+    case editor
+    case quickEditor
+
+    var id: Int { hashValue }
+}
+
 struct ShoppingListDetailView: View {
 
     @Environment(\.modelContext) private var context
     var list: ShoppingList
 
-    @State private var showScanner = false
-    @State private var showEditor = false
     @State private var editingItem: ShoppingItem?
+    @State private var activeSheet: ActiveSheet?
 
     var body: some View {
 
@@ -39,14 +46,14 @@ struct ShoppingListDetailView: View {
                         Text(item.quantity)
                     }
 
-                    // Termék szerkesztése
                     .onTapGesture {
+
                         editingItem = item
-                        showEditor = true
+                        activeSheet = .editor
                     }
                 }
             }
-        } // ← FONTOS: VStack lezárása
+        }
 
         .navigationTitle(list.title)
 
@@ -58,7 +65,7 @@ struct ShoppingListDetailView: View {
                 Button {
 
                     editingItem = nil
-                    showEditor = true
+                    activeSheet = .editor
 
                 } label: {
                     Image(systemName: "plus")
@@ -66,9 +73,20 @@ struct ShoppingListDetailView: View {
 
                 // 📷 Vonalkód scanner
                 Button {
-                    showScanner = true
+
+                    activeSheet = .scanner
+
                 } label: {
                     Image(systemName: "barcode.viewfinder")
+                }
+
+                // ⚡ QuickAdd szerkesztő
+                Button {
+
+                    activeSheet = .quickEditor
+
+                } label: {
+                    Image(systemName: "slider.horizontal.3")
                 }
 
                 // 💰 Ár összehasonlítás
@@ -82,34 +100,40 @@ struct ShoppingListDetailView: View {
             }
         }
 
-        // 📷 Scanner
-        .sheet(isPresented: $showScanner) {
+        .sheet(item: $activeSheet) { sheet in
 
-            BarcodeScannerView { code in
+            switch sheet {
 
-                showScanner = false
+            case .scanner:
 
-                Task {
+                BarcodeScannerView { code in
 
-                    let name = await ProductLookupService.fetchProduct(barcode: code)
+                    activeSheet = nil
 
-                    let item = ShoppingItem(
-                        name: name ?? "Ismeretlen termék"
-                    )
+                    Task {
 
-                    item.list = list
-                    context.insert(item)
+                        let name = await ProductLookupService.fetchProduct(barcode: code)
+
+                        let item = ShoppingItem(
+                            name: name ?? "Ismeretlen termék"
+                        )
+
+                        item.list = list
+                        context.insert(item)
+                    }
                 }
+
+            case .editor:
+
+                ItemEditorView(
+                    list: list,
+                    item: editingItem
+                )
+
+            case .quickEditor:
+
+                QuickAddEditorView()
             }
-        }
-
-        // ✏️ Termék szerkesztő
-        .sheet(isPresented: $showEditor) {
-
-            ItemEditorView(
-                list: list,
-                item: editingItem
-            )
         }
     }
 }
